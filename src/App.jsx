@@ -274,7 +274,7 @@ const Education = () => {
         <motion.h2 
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          className="text-4xl font-bold text-center mb-16 text-white"
+          className="text-2xl font-bold text-center mb-10 text-white"
         >
           Education
         </motion.h2>
@@ -290,7 +290,7 @@ const Education = () => {
                 initial={{ opacity: 0, x: 50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.3 }}
-                className="relative mb-12 flex items-center"
+                className="relative mb-8 flex items-center"
               >
                 {/* Timeline Dot */}
                 <div className="absolute left-6 w-4 h-4 bg-blue-800 rounded-full border-4 border-black shadow-lg z-10"></div>
@@ -299,13 +299,13 @@ const Education = () => {
                 <div className="ml-20 w-full">
                   <motion.div 
                     whileHover={{ scale: 1.02 }}
-                    className="bg-black-900 p-8 rounded-xl shadow-lg border-l-4 border-blue-600 hover:shadow-xl transition-all duration-300 border border-gray-800"
+                    className="bg-black-900 p-4 rounded-xl shadow-lg border-l-4 border-blue-600 hover:shadow-xl transition-all duration-300 border border-gray-800"
                   >
-                    <h3 className="text-2xl font-bold text-white mb-2">{edu.degree}</h3>
-                    <p className="text-blue-700 font-semibold text-lg mb-2">{edu.institution}</p>
+                    <h3 className="text-base font-bold text-white mb-1">{edu.degree}</h3>
+                    <p className="text-blue-700 font-semibold text-sm mb-1">{edu.institution}</p>
                     <div className="flex justify-between items-center text-gray-400">
-                      <p className="text-gray-500 font-medium">{edu.year}</p>
-                      <p className="text-gray-300 font-semibold">
+                      <p className="text-gray-500 font-medium text-xs">{edu.year}</p>
+                      <p className="text-gray-300 font-semibold text-xs">
                         {edu.scoreType}: <span className="text-blue-700">{edu.score}</span>
                       </p>
                     </div>
@@ -319,6 +319,7 @@ const Education = () => {
     </section>
   );
 };
+
 
 // Skills Component
 const Skills = () => {
