@@ -750,7 +750,7 @@ const LearnMore = () => {
                 className="grid md:grid-cols-2 lg:grid-cols-4 gap-4"
               >
                 {[
-                  { icon: Facebook, label: "Facebook", link: "#", color: "blue" },
+                  { icon: Facebook, label: "Facebook", link: "https://www.facebook.com/share/14QW967A86w/?mibextid=wwXIfr", color: "blue" },
                   { icon: Linkedin, label: "LinkedIn", link: "http://linkedin.com/in/sanjiv-mahato", color: "blue" },
                   { icon: Github, label: "GitHub", link: "https://github.com/sanjiv-65", color: "gray" },
                   { icon: FileText, label: "Resume", link: "https://drive.google.com/file/d/1m657fJt9lPOsG_srwu6RgE2_m8jVRG5i/view?usp=drive_link ", color: "green" }
