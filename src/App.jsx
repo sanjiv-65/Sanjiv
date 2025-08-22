@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence} from 'framer-motion';
 import { ExternalLink} from 'lucide-react';
+import emailjs from 'emailjs-com';
+
 import { Menu, X, Award, Mail, Github, Linkedin, Facebook, FileText, Phone, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-
   const navItems = ['About', 'Education', 'Skills', 'Experience', 'Projects', 'Contact'];
 
   return (
@@ -809,6 +810,35 @@ const Contact = () => {
     subject: '',
     message: ''
   });
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null);
+  const [emailJSLoaded, setEmailJSLoaded] = useState(false);
+
+  // Load EmailJS dynamically
+  useEffect(() => {
+    const loadEmailJS = () => {
+      if (window.emailjs) {
+        setEmailJSLoaded(true);
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = 'https://cdn.emailjs.com/npm/@emailjs/browser@3/dist/email.min.js';
+      script.onload = () => {
+        // Initialize EmailJS with your public key
+        window.emailjs.init('v9bqZ__AxfinWx0SL'); // Replace with your actual public key
+        setEmailJSLoaded(true);
+      };
+      script.onerror = () => {
+        console.error('Failed to load EmailJS');
+        setEmailJSLoaded(false);
+      };
+      document.head.appendChild(script);
+    };
+
+    loadEmailJS();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
@@ -817,83 +847,146 @@ const Contact = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Form submitted:', formData);
-    alert('Message sent successfully!');
-    setFormData({ name: '', email: '', subject: '', message: '' });
+    setIsSubmitting(true);
+    setSubmitStatus(null);
+    
+    try {
+      if (emailJSLoaded && window.emailjs) {
+        // EmailJS method
+        const result = await window.emailjs.send(
+          'service_k9o0yod', // Replace with your Gmail service ID from EmailJS
+          'Sanjiv Gmail', // Replace with your email template ID from EmailJS
+          {
+            from_name: formData.name,
+            from_email: formData.email,
+            subject: formData.subject,
+            message: formData.message,
+            to_email: 'mrsanjiv105@gmail.com'
+          },
+          'v9bqZ__AxfinWx0SL' // Replace with your public key from EmailJS
+        );
+        
+        console.log('Email sent successfully:', result);
+        setSubmitStatus('success');
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      } else {
+        throw new Error('EmailJS not loaded');
+      }
+    } catch (error) {
+      console.error('Error sending email:', error);
+      setSubmitStatus('error');
+      
+      // Fallback: Open default email client
+      const mailtoLink = `mailto:mrsanjiv105@gmail.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`)}`;
+      window.open(mailtoLink);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleMailtoFallback = () => {
+    const mailtoLink = `mailto:mrsanjiv105@gmail.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`)}`;
+    window.open(mailtoLink);
   };
 
   return (
     <section id="contact" className="py-16 bg-black">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.h2 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          className="text-4xl font-bold text-center mb-16 text-white"
-        >
+        <h2 className="text-4xl font-bold text-center mb-16 text-white">
           Get In Touch
-        </motion.h2>
+        </h2>
         
-        <motion.form 
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          onSubmit={handleSubmit}
-          className="space-y-6"
-        >
+        <div className="bg-gray-900 p-8 rounded-2xl border border-gray-700 shadow-2xl">
+          {/* EmailJS Loading Status */}
+         
+
+          {/* Status Messages */}
+          {submitStatus === 'success' && (
+            <div className="mb-6 p-4 bg-green-600 bg-opacity-20 border border-green-500 rounded-lg">
+              <p className="text-green-400 text-center font-semibold">
+                ✅ Message sent successfully! I'll get back to you soon.
+              </p>
+            </div>
+          )}
           
-          <div className="grid md:grid-cols-2 gap-6">
-            <motion.input
-              whileFocus={{ scale: 1.02 }}
+          {submitStatus === 'error' && (
+            <div className="mb-6 p-4 bg-red-600 bg-opacity-20 border border-red-500 rounded-lg">
+              <p className="text-red-400 text-center">
+                ❌ Failed to send message. Your default email client should have opened as a fallback.
+              </p>
+            </div>
+          )}
+          
+          <div className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              <input
+                type="text"
+                name="name"
+                placeholder="Your Name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-600 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300 text-white placeholder-gray-400"
+              />
+              <input
+                type="email"
+                name="email"
+                placeholder="Your Email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-600 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300 text-white placeholder-gray-400"
+              />
+            </div>
+            <input
               type="text"
-              name="name"
-              placeholder="Your Name"
-              value={formData.name}
+              name="subject"
+              placeholder="Subject"
+              value={formData.subject}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 focus:border-gray-300 focus:outline-none transition-colors duration-300 text-white"
+              className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-600 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300 text-white placeholder-gray-400"
             />
-            <motion.input
-              whileFocus={{ scale: 1.02 }}
-              type="email"
-              name="email"
-              placeholder="Your Email"
-              value={formData.email}
+            <textarea
+              name="message"
+              placeholder="Your Message"
+              rows="6"
+              value={formData.message}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 focus:border-gray-300 focus:outline-none transition-colors duration-300 text-white"
+              className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-600 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300 text-white placeholder-gray-400 resize-vertical"
             />
+            
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    Sending...
+                  </>
+                ) : (
+                  'Send Message'
+                )}
+              </button>
+              
+              <button
+                type="button"
+                onClick={handleMailtoFallback}
+                className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105"
+              >
+                Open Email Client
+              </button>
+            </div>
           </div>
-          <motion.input
-            whileFocus={{ scale: 1.02 }}
-            type="text"
-            name="subject"
-            placeholder="Subject"
-            value={formData.subject}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 focus:gray-blue-300 focus:outline-none transition-colors duration-300 text-white"
-          />
-          <motion.textarea
-            whileFocus={{ scale: 1.02 }}
-            name="message"
-            placeholder="Your Message"
-            rows="6"
-            value={formData.message}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 focus:border-gray-300 focus:outline-none transition-colors duration-300 text-white"
-          ></motion.textarea>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            type="submit"
-            className="w-full bg-gradient-to-r from-blue-300 to-purple-600 text-white py-3 rounded-lg font-semibold hover:from-gray-700 hover:to-gray-200 transition-all duration-300"
-          >
-            Send Message
-          </motion.button>
-        </motion.form>
+        </div>
+        
+       
       </div>
     </section>
   );
