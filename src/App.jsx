@@ -6,7 +6,7 @@ import { Menu, X, Award, Mail, Github, Linkedin, Facebook, FileText, Phone, MapP
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const navItems = ['About', 'Education', 'Skills', 'Experience', 'Projects','Achievement', 'Contact'];
+  const navItems = ['About', 'Education', 'Skills', 'Experience', 'Projects', 'Contact'];
 
   return (
     <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-6xl px-4">
