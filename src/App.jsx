@@ -975,13 +975,7 @@ const Contact = () => {
                 )}
               </button>
               
-              <button
-                type="button"
-                onClick={handleMailtoFallback}
-                className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105"
-              >
-                Open Email Client
-              </button>
+             
             </div>
           </div>
         </div>
