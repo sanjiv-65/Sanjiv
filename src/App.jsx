@@ -480,7 +480,12 @@ const Experience = () => {
       title: "Cyber Security(Cloud Security,Network Security, Security Operations)",
       company: "Palo Alto Networks",
       description: "Course completion in four foundational courses from Palo Alto Networks, diving deep into key areas of the cyber security domain"
-    }
+    },
+    {
+      title: "CISCO",
+      company: "CISCO Academy",
+      description: "\Course Completion"
+    },
   ];
 
   return (
