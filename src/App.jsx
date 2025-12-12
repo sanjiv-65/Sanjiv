@@ -464,13 +464,13 @@ const Skills = () => {
   );
 };
 
-// Experience Component
+// Certifications Component
 const Experience = () => {
   const experiences = [
     {
       title: "AWS Cloud Architecting",
       company: "AWS Academy",
-      description: " Completion Certificate in AWS Cloud Architecting."
+      description: "Completion Certificate in AWS Cloud Architecting."
     },
     {
       title: "Linux System Administration",
@@ -492,22 +492,45 @@ const Experience = () => {
   return (
     <section id="experience" className="py-16 bg-black">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-4xl font-bold text-center mb-16 text-white">
+        <motion.h2 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          className="text-2xl font-bold text-center mb-10 text-white"
+        >
           Certifications
-        </h2>
+        </motion.h2>
         
-        <div className="space-y-7">
-          {experiences.map((exp, index) => (
-            <div 
-              key={index}
-              className="bg-black-400 p-6 rounded-md border border-gray-700 shadow-lg"
-            >
-              <h3 className="text-2xl font-bold text-white">{exp.title}</h3>
-              <p className="text-blue-400 font-semibold">{exp.company}</p>
-              <p className="text-gray-500 mb-3">{exp.period}</p>
-              <p className="text-gray-300">{exp.description}</p>
-            </div>
-          ))}
+        <div className="max-w-4xl mx-auto">
+          <div className="relative">
+            {/* Vertical Timeline Line */}
+             {/* <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-blue-800"></div> */}
+            
+            
+            {experiences.map((exp, index) => (
+              <motion.div 
+                key={index}
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.3 }}
+                className="relative mb-8 flex items-center"
+              >
+                {/* Timeline Dot */}
+              {/*<div className="absolute left-6 w-4 h-4 bg-blue-800 rounded-full border-4 border-black shadow-lg z-10"></div>*/}  
+                
+                {/* Certification Card */}
+                <div className="ml-20 w-full">
+                  <motion.div 
+                    whileHover={{ scale: 1.02 }}
+                    className="bg-black-900 p-4 rounded-xl shadow-lg border-l-4 border-blue-600 hover:shadow-xl transition-all duration-300 border border-gray-800"
+                  >
+                    <h3 className="text-base font-bold text-white mb-1">{exp.title}</h3>
+                    <p className="text-blue-700 font-semibold text-sm mb-1">{exp.company}</p>
+                    <p className="text-gray-300 text-xs">{exp.description}</p>
+                  </motion.div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
