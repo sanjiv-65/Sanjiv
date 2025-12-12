@@ -642,65 +642,7 @@ const Projects = () => {
 };
 
 
-// Achievements Component
-{/*
-  const Achievements = () => {
-  const achievements = [
-    "Winner of Hackathon 2023",
-    "Certified AWS Solutions Architect",
-    "Published 5+ technical articles",
-    "Speaker at React Conference 2023",
-    "Open source contributor with 500+ GitHub stars"
-  ];
 
-  return (
-    <section id="achievements" className="py-16 bg-black">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.h2 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          className="text-4xl font-bold text-center mb-16 text-white"
-        >
-          Achievements
-        </motion.h2>
-        
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {achievements.map((achievement, index) => (
-            <motion.div 
-              key={index}
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ scale: 1.05 }}
-              className="bg-gray-900 p-6 rounded-lg shadow-lg border-l-4 border-yellow-400 border border-gray-800"
-            >
-              <div className="flex items-center">
-                <Award className="text-yellow-500 mr-3" size={24} />
-                <p className="text-gray-300 font-medium">{achievement}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-  */}
-        
-        {/* Learn More Button */}
-      //  <motion.div 
-       //   initial={{ opacity: 0, y: 30 }}
-        //  whileInView={{ opacity: 1, y: 0 }}
-         // className="text-center mt-12" >
-          {/*<motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => document.getElementById('learn-more').scrollIntoView({ behavior: 'smooth' })}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
-          >
-            Learn More
-          </motion.button>*/}
-    //    </motion.div>
-   //   </div>
-  //  </section>
-//  );
-// };
 
 // Learn More Component
 const LearnMore = () => {
