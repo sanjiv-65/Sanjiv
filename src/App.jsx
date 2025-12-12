@@ -825,7 +825,8 @@ const LearnMore = () => {
   );
 };
 
-// Contact Component
+
+
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -838,6 +839,13 @@ const Contact = () => {
   const [submitStatus, setSubmitStatus] = useState(null);
   const [emailJSLoaded, setEmailJSLoaded] = useState(false);
 
+  // EmailJS Configuration - REPLACE THESE WITH YOUR ACTUAL VALUES
+  const EMAILJS_CONFIG = {
+    publicKey: 'v9bqZ__AxfinWx0SL',      // From EmailJS Dashboard
+    serviceId: 'service_94ht7h2',       // From EmailJS Dashboard
+    templateId: 'template_peold2g'      // From EmailJS Dashboard
+  };
+
   // Load EmailJS dynamically
   useEffect(() => {
     const loadEmailJS = () => {
@@ -847,10 +855,10 @@ const Contact = () => {
       }
 
       const script = document.createElement('script');
-      script.src = 'https://cdn.emailjs.com/npm/@emailjs/browser@3/dist/email.min.js';
+      script.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+
       script.onload = () => {
-        // Initialize EmailJS with your public key
-        window.emailjs.init('v9bqZ__AxfinWx0SL'); // Replace with your actual public key
+        window.emailjs.init(EMAILJS_CONFIG.publicKey);
         setEmailJSLoaded(true);
       };
       script.onerror = () => {
@@ -870,30 +878,36 @@ const Contact = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
+    // Validation
+    if (!formData.name || !formData.email || !formData.subject || !formData.message) {
+      setSubmitStatus('validation');
+      setTimeout(() => setSubmitStatus(null), 3000);
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitStatus(null);
     
     try {
       if (emailJSLoaded && window.emailjs) {
-        // EmailJS method
         const result = await window.emailjs.send(
-          'service_k9o0yod', // Replace with your Gmail service ID from EmailJS
-          'Sanjiv Gmail', // Replace with your email template ID from EmailJS
+          EMAILJS_CONFIG.serviceId,
+          EMAILJS_CONFIG.templateId,
           {
             from_name: formData.name,
             from_email: formData.email,
             subject: formData.subject,
             message: formData.message,
-            to_email: 'mrsanjiv105@gmail.com'
-          },
-          'v9bqZ__AxfinWx0SL' // Replace with your public key from EmailJS
+            to_name: 'Sanjiv'
+          }
         );
         
         console.log('Email sent successfully:', result);
         setSubmitStatus('success');
         setFormData({ name: '', email: '', subject: '', message: '' });
+        
+        setTimeout(() => setSubmitStatus(null), 5000);
       } else {
         throw new Error('EmailJS not loaded');
       }
@@ -901,29 +915,29 @@ const Contact = () => {
       console.error('Error sending email:', error);
       setSubmitStatus('error');
       
-      // Fallback: Open default email client
       const mailtoLink = `mailto:mrsanjiv105@gmail.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`)}`;
-      window.open(mailtoLink);
+      window.location.href = mailtoLink;
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleMailtoFallback = () => {
-    const mailtoLink = `mailto:mrsanjiv105@gmail.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`)}`;
-    window.open(mailtoLink);
-  };
-
   return (
-    <section id="contact" className="py-16 bg-black">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-16 bg-black min-h-screen flex items-center">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <h2 className="text-4xl font-bold text-center mb-16 text-white">
           Get In Touch
         </h2>
         
         <div className="bg-gray-900 p-8 rounded-2xl border border-gray-700 shadow-2xl">
-          {/* EmailJS Loading Status */}
-         
+          {/* EmailJS Status */}
+          {/*<div className="mb-4 text-center">
+            {emailJSLoaded ? (
+              <span className="text-green-400 text-sm">● EmailJS Ready</span>
+            ) : (
+              <span className="text-yellow-400 text-sm">⏳ Loading EmailJS...</span>
+            )}
+          </div>*/}
 
           {/* Status Messages */}
           {submitStatus === 'success' && (
@@ -937,7 +951,15 @@ const Contact = () => {
           {submitStatus === 'error' && (
             <div className="mb-6 p-4 bg-red-600 bg-opacity-20 border border-red-500 rounded-lg">
               <p className="text-red-400 text-center">
-                ❌ Failed to send message. Your default email client should have opened as a fallback.
+                ❌ Failed to send. Opening email client as backup...
+              </p>
+            </div>
+          )}
+
+          {submitStatus === 'validation' && (
+            <div className="mb-6 p-4 bg-yellow-600 bg-opacity-20 border border-yellow-500 rounded-lg">
+              <p className="text-yellow-400 text-center">
+                ⚠️ Please fill in all fields
               </p>
             </div>
           )}
@@ -950,7 +972,6 @@ const Contact = () => {
                 placeholder="Your Name"
                 value={formData.name}
                 onChange={handleChange}
-                required
                 className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-600 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300 text-white placeholder-gray-400"
               />
               <input
@@ -959,7 +980,6 @@ const Contact = () => {
                 placeholder="Your Email"
                 value={formData.email}
                 onChange={handleChange}
-                required
                 className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-600 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300 text-white placeholder-gray-400"
               />
             </div>
@@ -969,45 +989,42 @@ const Contact = () => {
               placeholder="Subject"
               value={formData.subject}
               onChange={handleChange}
-              required
               className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-600 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300 text-white placeholder-gray-400"
             />
             <textarea
               name="message"
               placeholder="Your Message"
-              rows="6"
+              rows={6}
               value={formData.message}
               onChange={handleChange}
-              required
               className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-600 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300 text-white placeholder-gray-400 resize-vertical"
             />
             
-            <div className="flex flex-col sm:flex-row gap-4">
-              <button
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
-              >
-                {isSubmitting ? (
-                  <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                    Sending...
-                  </>
-                ) : (
-                  'Send Message'
-                )}
-              </button>
-              
-             
-            </div>
+            <button
+              onClick={handleSubmit}
+              disabled={isSubmitting || !emailJSLoaded}
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  Sending...
+                </>
+              ) : (
+                'Send Message'
+              )}
+            </button>
           </div>
         </div>
         
-       
+        {/* Direct Email Link */}
+        
       </div>
     </section>
   );
 };
+
+
 
 // Footer Component
 const Footer = () => {
