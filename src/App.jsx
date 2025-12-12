@@ -482,11 +482,7 @@ const Experience = () => {
       company: "Palo Alto Networks",
       description: "Course completion in four foundational courses from Palo Alto Networks, diving deep into key areas of the cyber security domain"
     },
-    {
-      title: "CISCO",
-      company: "CISCO Academy",
-      description: "\Course Completion"
-    },
+    
   ];
 
   return (
@@ -509,7 +505,7 @@ const Experience = () => {
             {experiences.map((exp, index) => (
               <motion.div 
                 key={index}
-                initial={{ opacity: 0, x: 50 }}
+                initial={{ opacity: 0, x: 0 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.3 }}
                 className="relative mb-8 flex items-center"
@@ -640,9 +636,6 @@ const Projects = () => {
     </section>
   );
 };
-
-
-
 
 // Learn More Component
 const LearnMore = () => {
