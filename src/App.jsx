@@ -11,7 +11,7 @@ const Navbar = () => {
 
   return (
     <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-6xl px-4">
-      <nav className="bg-black/90 backdrop-blur-md shadow-2xl rounded-2xl border border-gray-800/50">
+      <nav className="bg-black/40 backdrop-blur-md shadow-2xl rounded-2xl border border-gray-800/50">
         <div className="px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="text-2xl font-bold text-white hover:scale-105 transform transition-all duration-300 cursor-pointer">
@@ -209,7 +209,7 @@ const About = () => {
               </motion.h4>
               
               <motion.p 
-                className="text-gray-300 leading-relaxed text-lg lg:text-xl"
+                className="text-white leading-relaxed text-lg lg:text-xl"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.8 }}
