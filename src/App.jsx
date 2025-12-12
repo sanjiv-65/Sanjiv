@@ -204,7 +204,7 @@ const About = () => {
                     ease: "easeInOut"
                   }}
                 >
-                  Frontend Developer
+                  Full-Stack Developer
                 </motion.span>
               </motion.h4>
               
