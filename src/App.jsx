@@ -686,9 +686,9 @@ const LearnMore = () => {
                 //  initial={{ scale: 0 }}
                 //  animate={{ scale: 1 }}
                  // transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-                  src="/profile-photo.jpg" 
+                  src="/profile-photo1.png" 
                   alt="Sanjiv Kumar Mahato" 
-                  className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-blue-400 object-cover"
+                  className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-gray-200 object-cover"
                 />
                 <motion.h3 
                  // initial={{ opacity: 0, y: 20 }}
@@ -718,7 +718,7 @@ const LearnMore = () => {
                   { icon: Facebook, label: "Facebook", link: "https://www.facebook.com/share/14QW967A86w/?mibextid=wwXIfr", color: "blue" },
                   { icon: Linkedin, label: "LinkedIn", link: "http://linkedin.com/in/sanjiv-mahato", color: "blue" },
                   { icon: Github, label: "GitHub", link: "https://github.com/sanjiv-65", color: "gray" },
-                  { icon: FileText, label: "Resume", link: "https://drive.google.com/file/d/1m657fJt9lPOsG_srwu6RgE2_m8jVRG5i/view?usp=drive_link ", color: "green" }
+                  { icon: FileText, label: "Resume", link: "https://drive.google.com/file/d/1xTPNlhusQrycJ5lGDg60Hs23IW2TkWzD/view?usp=sharing", color: "green" }
                 ].map((social, index) => (
                   <motion.a 
                     key={social.label}
