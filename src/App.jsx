@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Mail, Github, Linkedin, Facebook, FileText, Phone, MapPin, ChevronDown, CheckCircle2, GraduationCap, School, ArrowUpRight } from 'lucide-react';
+import { Menu, X, Mail, Github, Linkedin, Facebook, FileText, Phone, MapPin, ChevronDown, CheckCircle2, GraduationCap, School } from 'lucide-react';
 
 const LoopTypewriter = ({
   items,
@@ -74,7 +74,48 @@ const LoopTypewriter = ({
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const navItems = ['Home', 'About', 'Education', 'Skills', 'Experience', 'Projects', 'Contact'];
+  const [activeSection, setActiveSection] = useState('home');
+
+  const navItems = useMemo(
+    () => [
+      { label: 'Home', id: 'home' },
+      { label: 'About', id: 'about' },
+      { label: 'Education', id: 'education' },
+      { label: 'Skills', id: 'skills' },
+      { label: 'Experience', id: 'experience' },
+      { label: 'Projects', id: 'projects' },
+      { label: 'Contact', id: 'contact' }
+    ],
+    []
+  );
+
+  useEffect(() => {
+    const sectionElements = navItems
+      .map((item) => document.getElementById(item.id))
+      .filter(Boolean);
+
+    if (sectionElements.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => (b.intersectionRatio ?? 0) - (a.intersectionRatio ?? 0));
+
+        const top = visible[0]?.target?.id;
+        if (top) setActiveSection(top);
+      },
+      {
+        root: null,
+        threshold: [0.2, 0.35, 0.5, 0.7],
+        rootMargin: '-35% 0px -55% 0px'
+      }
+    );
+
+    sectionElements.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, [navItems]);
 
   return (
     <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 max-w-6xl px-3">
@@ -92,11 +133,17 @@ const Navbar = () => {
             <div className="hidden md:flex space-x-8">
               {navItems.map((item) => (
                 <a
-                  key={item}
-                  href={`#${item.toLowerCase()}`}
-                  className="text-gray-300 hover:text-blue-400 transition-all duration-300 hover:scale-110 transform font-medium"
+                  key={item.id}
+                  href={`#${item.id}`}
+                  onClick={() => setActiveSection(item.id)}
+                  className={`relative font-medium transition-all duration-300 hover:scale-110 transform ${
+                    activeSection === item.id ? 'text-gray-400' : 'text-gray-300 hover:text-amber-800'
+                  }`}
                 >
-                  {item}
+                  {item.label}
+                  {activeSection === item.id ? (
+                    <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 h-0.5 w-6 rounded-full bg-amber-800" />
+                  ) : null}
                 </a>
               ))}
             </div>
@@ -105,7 +152,7 @@ const Navbar = () => {
             <div className="md:hidden">
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="text-white hover:text-blue-400 transition-colors duration-300"
+                className="text-white hover:text-amber-800 transition-colors duration-300"
               >
                 {isOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
@@ -117,12 +164,17 @@ const Navbar = () => {
             <div className="md:hidden pb-4 border-t border-gray-800/50 mt-4">
               {navItems.map((item) => (
                 <a
-                  key={item}
-                  href={`#${item.toLowerCase()}`}
-                  className="block py-3 text-gray-300 hover:text-blue-400 transition-colors duration-300 font-medium"
-                  onClick={() => setIsOpen(false)}
+                  key={item.id}
+                  href={`#${item.id}`}
+                  className={`block py-3 transition-colors duration-300 font-medium ${
+                    activeSection === item.id ? 'text-amber-800' : 'text-gray-300 hover:text-amber-800'
+                  }`}
+                  onClick={() => {
+                    setActiveSection(item.id);
+                    setIsOpen(false);
+                  }}
                 >
-                  {item}
+                  {item.label}
                 </a>
               ))}
             </div>
@@ -138,8 +190,8 @@ const Home = () => {
   const loopItems = useMemo(() => ['Sanjiv Kumar\nMahato', 'FULL STACK DEVELOPER'], []);
   const loopItemClassNames = useMemo(
     () => [
-      'bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent',
-      'text-blue-400 tracking-wide'
+      'text-[rgb(227,141,87)]',
+      'text-[rgb(205,193,178)] tracking-wide'
     ],
     []
   );
@@ -202,7 +254,7 @@ const Home = () => {
             className="flex justify-center md:justify-end"
           >
             <div className="relative w-72 h-72 sm:w-80 sm:h-80 lg:w-[420px] lg:h-[420px]">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500/30 to-purple-500/30 blur-2xl" />
+              <div className="absolute inset-0 rounded-full bg-slate-900 blur-2xl" />
               <div className="absolute inset-0 rounded-full border border-gray-700/60 bg-gray-900/10" />
               <motion.div
                 whileHover={{ scale: 1.03 }}
@@ -332,44 +384,19 @@ const About = () => {
                 transition={{ duration: 0.8, delay: 0.4 }}
               >
                 <motion.span
-                  animate={{
-                    backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "linear"
-                  }}
-                  style={{
-                    background: 'linear-gradient(45deg, #fff, #3b82f6, #9333ea, #fff)',
-                    backgroundSize: '300% 300%',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text'
-                  }}
+                  className="text-[rgb(231,134,74)]"
                 >
                   SANJIV KUMAR MAHATO
                 </motion.span>
               </motion.h3>
 
               <motion.h4
-                className="text-2xl lg:text-3xl text-blue-400 font-semibold"
+                className="text-2xl lg:text-3xl font-semibold text-[rgb(205,193,178)]"
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.6 }}
               >
-                <motion.span
-                  animate={{
-                    color: ['#60a5fa', '#a855f7', '#ec4899', '#22c55e', '#60a5fa']
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                >
-                  Full-Stack Developer
-                </motion.span>
+                Full-Stack Developer
               </motion.h4>
 
               <motion.p
@@ -501,7 +528,7 @@ const Education = () => {
                         <motion.div
                           whileHover={{ y: -4 }}
                           transition={{ duration: 0.2 }}
-                          className="relative rounded-2xl border border-gray-800/70 bg-gradient-to-b from-gray-900/70 to-gray-900/30 backdrop-blur-md shadow-[0_25px_80px_rgba(0,0,0,0.6)] p-7"
+                          className="relative rounded-2xl border border-gray-800/70 bg-black/30 backdrop-blur-md shadow-[0_25px_80px_rgba(0,0,0,0.6)] p-7"
                         >
                           <div className="absolute inset-0 rounded-2xl bg-white/[0.02] pointer-events-none" />
 
@@ -543,7 +570,6 @@ const Education = () => {
     </section>
   );
 };
-
 
 // Skills Component
 const Skills = () => {
@@ -632,33 +658,37 @@ const Skills = () => {
           My Skills
         </motion.h2>
 
-        <div className="grid gap-8 lg:gap-10 mt-14 lg:grid-cols-2">
-          {skillSections.map((section, sectionIndex) => (
-            <motion.div
-              key={section.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: sectionIndex * 0.05 }}
-              className="relative rounded-2xl border border-gray-800/70 bg-gradient-to-b from-gray-900/70 to-gray-900/30 backdrop-blur-md shadow-[0_25px_80px_rgba(0,0,0,0.6)] p-8"
-            >
-              <div className="absolute inset-0 rounded-2xl bg-black pointer-events-none" />
-              <h3 className="text-center text-2xl font-semibold text-gray-200 mb-8 relative">
-                {section.title}
-              </h3>
-              <div className="flex flex-wrap justify-center gap-4 relative">
-                {section.skills.map((skill, index) => (
-                  <SkillPill
-                    key={skill.name}
-                    skill={skill}
-                    variantIndex={sectionIndex * 10 + index}
-                  />
-                ))}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.25 }}
+          transition={{ duration: 0.6 }}
+          className="mt-14 rounded-3xl border border-gray-800/70 bg-black/40 backdrop-blur-md shadow-[0_25px_80px_rgba(0,0,0,0.65)] p-6 sm:p-8 lg:p-10"
+        >
+          <div className="grid gap-6 lg:gap-8 lg:grid-cols-2">
+            {skillSections.map((section, sectionIndex) => (
+              <div
+                key={section.title}
+                className="rounded-2xl border border-gray-800/70 bg-black/40 shadow-[0_20px_60px_rgba(0,0,0,0.5)] p-6"
+              >
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-200 mb-5">
+                  {section.title}
+                </h3>
+                <div className="flex flex-wrap gap-3">
+                  {section.skills.map((skill, index) => (
+                    <SkillPill
+                      key={skill.name}
+                      skill={skill}
+                      variantIndex={sectionIndex * 10 + index}
+                    />
+                  ))}
+                </div>
               </div>
-            </motion.div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </motion.div>
       </div>
+      
     </section>
   );
 };
@@ -710,37 +740,29 @@ const Experience = () => {
           Certifications
         </motion.h2>
 
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto rounded-3xl border border-gray-800/70 bg-gradient-to-brown from-gray-900/60 to-gray-950/30 backdrop-blur-md shadow-[0_25px_80px_rgba(0,0,0,0.65)] p-6 sm:p-8">
           <div className="relative">
-            {/* Vertical Timeline Line */}
-            {/* <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-blue-800"></div> */}
-
-
             {experiences.map((exp, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, x: 0 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.3 }}
-                className="relative mb-8 flex items-center"
+                transition={{ delay: index * 0.15 }}
+                className="relative mb-6 flex items-center last:mb-0"
               >
-                {/* Timeline Dot */}
-                {/*<div className="absolute left-6 w-4 h-4 bg-blue-800 rounded-full border-4 border-black shadow-lg z-10"></div>*/}
-
-                {/* Certification Card */}
-                <div className="ml-20 w-full">
+                <div className="ml-0 w-full">
                   <motion.button
                     type="button"
-                    whileHover={{ scale: 1.02 }}
-                    className="w-full text-left bg-black-900 p-4 rounded-xl shadow-lg border-l-4 border-blue-600 hover:shadow-xl transition-all duration-300 border border-gray-800 cursor-pointer"
+                    whileHover={{ scale: 1.01 }}
+                    className="w-full text-left bg-black/40 p-5 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.5)] border border-gray-800/70 cursor-pointer transition-all duration-300 hover:border-gray-700/80"
                     onClick={() => {
                       setActiveCert(exp);
                       setActiveAssetIndex(0);
                     }}
                   >
-                    <h3 className="text-base font-bold text-white mb-1">{exp.title}</h3>
-                    <p className="text-blue-700 font-semibold text-sm mb-1">{exp.company}</p>
-                    <p className="text-gray-300 text-xs">{exp.description}</p>
+                    <h3 className="text-base sm:text-lg font-bold text-white mb-1">{exp.title}</h3>
+                    <p className="text-blue-400 font-semibold text-sm mb-2">{exp.company}</p>
+                    <p className="text-gray-300 text-sm">{exp.description}</p>
                   </motion.button>
                 </div>
               </motion.div>
@@ -877,27 +899,20 @@ const Projects = () => {
 
   const projects = [
     {
+      title: "News Portal(Birgunj Khabar)",
+      description: "Developed a full-stack news portal featuring separate admin and user modules for real-time news publishing and management.Designed a dynamic and responsive interface with category-based content display and live updates.",
+      tech: ["React", "Node.js", "MongoDB", "Express"],
+      image: "/News-portal.png",
+      category: "News Potal"
+    },
+    {
       title: "Patient Management System",
       description: "Healthcare management system, it manages patient appointments, medical records, and secure communication with role-based dashboards for patients, doctors, and admins.",
       tech: ["React", "Node.js", "MongoDB", "Express"],
       image: "https://birhospital.gov.np/frontend/website/images/gov_logo.png",
       category: "Healthcare System"
     },
-    {
-      title: "Capstone Project",
-      description: "Design and deploy a scalable, secure cloud infrastructure on AWS, focusing on high availability, cost efficiency, and best practices.",
-      tech: ["AWS Cloud Architecting", "MySQL"],
-      image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=500&h=300&fit=crop",
-      category: "Cloud Infrastructure"
-    },
-
-    {
-      title: "Task Management App",
-      description: "Real-time task management application with drag-and-drop functionality, team collaboration, and progress tracking.",
-      tech: ["React", "Firebase", "Material-UI"],
-      image: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=500&h=300&fit=crop",
-      category: "Productivity Tool"
-    },
+    
   ];
 
   const handleProjectClick = (index) => {
@@ -922,7 +937,8 @@ const Projects = () => {
           Projects
         </motion.h2>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8 mt-10">
+        <div className="mt-10 rounded-3xl border border-gray-800/70 bg-black/30 backdrop-blur-md shadow-[0_25px_80px_rgba(0,0,0,0.65)] p-6 sm:p-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
           {projects.map((project, index) => (
             <div
               key={index}
@@ -981,16 +997,17 @@ const Projects = () => {
                     })}
                   </div>
 
-                  <div className="flex items-center gap-4 text-gray-200 shrink-0">
+                 {/* <div className="flex items-center gap-4 text-gray-200 shrink-0">
                     <span className="text-base font-semibold">Check Live Site</span>
                     <div className="w-10 h-10 rounded-full bg-black/40 border border-gray-700/70 flex items-center justify-center">
                       <ArrowUpRight className="text-purple-300" size={20} />
                     </div>
-                  </div>
+                  </div>*/}
                 </div>
               </div>
             </div>
           ))}
+          </div>
         </div>
       </div>
     </section>
@@ -1328,7 +1345,7 @@ const Footer = () => {
             whileInView={{ opacity: 1 }}
             className="text-gray-400 mb-4 md:mb-0"
           >
-            © 2024 Sanjiv Kumar Mahato. All rights reserved.
+           Copyright © Sanjiv Kumar Mahato  2026
           </motion.p>
           <motion.div
             initial={{ opacity: 0 }}
