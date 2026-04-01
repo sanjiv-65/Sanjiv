@@ -1,23 +1,93 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence} from 'framer-motion';
-import { ExternalLink} from 'lucide-react';
-import emailjs from 'emailjs-com';
+import React, { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Menu, X, Mail, Github, Linkedin, Facebook, FileText, Phone, MapPin, ChevronDown, CheckCircle2, GraduationCap, School, ArrowUpRight } from 'lucide-react';
 
-import { Menu, X, Award, Mail, Github, Linkedin, Facebook, FileText, Phone, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
+const LoopTypewriter = ({
+  items,
+  typeSpeed = 55,
+  deleteSpeed = 35,
+  pauseMs = 900,
+  startDelay = 0,
+  className = '',
+  itemClassNames = []
+}) => {
+  const safeItems = useMemo(() => {
+    if (!Array.isArray(items)) return [];
+    return items.filter(Boolean);
+  }, [items]);
+
+  const [itemIndex, setItemIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isStarted, setIsStarted] = useState(startDelay === 0);
+
+  useEffect(() => {
+    if (isStarted) return;
+    const timeoutId = setTimeout(() => setIsStarted(true), startDelay);
+    return () => clearTimeout(timeoutId);
+  }, [isStarted, startDelay]);
+
+  useEffect(() => {
+    if (!isStarted) return;
+    if (safeItems.length === 0) return;
+
+    const fullText = safeItems[itemIndex % safeItems.length];
+
+    if (!isDeleting && charIndex === fullText.length) {
+      const timeoutId = setTimeout(() => setIsDeleting(true), pauseMs);
+      return () => clearTimeout(timeoutId);
+    }
+
+    if (isDeleting && charIndex === 0) {
+      const timeoutId = setTimeout(() => {
+        setIsDeleting(false);
+        setItemIndex((v) => (v + 1) % safeItems.length);
+      }, 200);
+      return () => clearTimeout(timeoutId);
+    }
+
+    const timeoutId = setTimeout(() => {
+      setCharIndex((v) => v + (isDeleting ? -1 : 1));
+    }, isDeleting ? deleteSpeed : typeSpeed);
+
+    return () => clearTimeout(timeoutId);
+  }, [
+    isStarted,
+    safeItems,
+    itemIndex,
+    charIndex,
+    isDeleting,
+    typeSpeed,
+    deleteSpeed,
+    pauseMs
+  ]);
+
+  if (safeItems.length === 0) return null;
+
+  const current = itemIndex % safeItems.length;
+  const fullText = safeItems[current];
+  const displayText = fullText.slice(0, charIndex);
+  const itemClassName = itemClassNames[current] ?? '';
+
+  return <span className={`${className} ${itemClassName}`}>{displayText}</span>;
+};
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const navItems = ['About', 'Education', 'Skills', 'Experience', 'Projects', 'Contact'];
+  const navItems = ['Home', 'About', 'Education', 'Skills', 'Experience', 'Projects', 'Contact'];
 
   return (
-    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-6xl px-4">
-      <nav className="bg-black/40 backdrop-blur-md shadow-2xl rounded-2xl border border-gray-800/50">
+    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 max-w-6xl px-3">
+      <nav className="bg-black  shadow-2xl rounded-2xl border border-gray-800/50">
         <div className="px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <div className="text-2xl font-bold text-white hover:scale-105 transform transition-all duration-300 cursor-pointer">
+            {/* <a
+              href="#home"
+              className="text-2xl font-bold text-white hover:scale-105 transform transition-all duration-300 cursor-pointer"
+            >
               Sanjiv
-            </div>
-            
+            </a>*/}
+
             {/* Desktop Menu */}
             <div className="hidden md:flex space-x-8">
               {navItems.map((item) => (
@@ -33,8 +103,8 @@ const Navbar = () => {
 
             {/* Mobile Menu Button */}
             <div className="md:hidden">
-              <button 
-                onClick={() => setIsOpen(!isOpen)} 
+              <button
+                onClick={() => setIsOpen(!isOpen)}
                 className="text-white hover:text-blue-400 transition-colors duration-300"
               >
                 {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -63,13 +133,107 @@ const Navbar = () => {
   );
 };
 
+// Home Component
+const Home = () => {
+  const loopItems = useMemo(() => ['Sanjiv Kumar\nMahato', 'FULL STACK DEVELOPER'], []);
+  const loopItemClassNames = useMemo(
+    () => [
+      'bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent',
+      'text-blue-400 tracking-wide'
+    ],
+    []
+  );
+
+  return (
+    <section
+      id="home"
+      className="min-h-screen flex items-center bg-black pt-28 pb-20"
+    >
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          {/* Left */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="space-y-6"
+          >
+            <div className="space-y-3">
+              <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight">
+                <span className="text-gray-200">Hello, I&apos;m</span>
+              </h1>
+
+              <div className="relative min-h-[7.5rem] sm:min-h-[9rem]">
+                <h2 className="text-5xl sm:text-6xl font-extrabold tracking-tight whitespace-pre-line leading-[1.05]">
+                  <LoopTypewriter
+                    items={loopItems}
+                    typeSpeed={55}
+                    deleteSpeed={35}
+                    pauseMs={900}
+                    className="whitespace-pre-line"
+                    itemClassNames={loopItemClassNames}
+                  />
+                  <motion.span
+                    aria-hidden="true"
+                    animate={{ opacity: [0, 1, 0] }}
+                    transition={{ duration: 0.9, repeat: Infinity, ease: 'linear' }}
+                    className="inline-block w-[3px] h-[0.9em] bg-blue-400 align-[-0.08em] ml-2"
+                  />
+                </h2>
+              </div>
+            </div>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6 }}
+              className="text-gray-300 text-lg leading-relaxed max-w-xl"
+            >
+              A dark screen, a curious mind, and a passion for modern web application.
+              Turning real-world problems into clean, working software — that’s what I do.
+            </motion.p>
+          </motion.div>
+
+          {/* Right */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
+            className="flex justify-center md:justify-end"
+          >
+            <div className="relative w-72 h-72 sm:w-80 sm:h-80 lg:w-[420px] lg:h-[420px]">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500/30 to-purple-500/30 blur-2xl" />
+              <div className="absolute inset-0 rounded-full border border-gray-700/60 bg-gray-900/10" />
+              <motion.div
+                whileHover={{ scale: 1.03 }}
+                transition={{ duration: 0.25 }}
+                className="relative rounded-full overflow-hidden w-full h-full shadow-2xl"
+              >
+                <img
+                  src="/Home1.jpeg"
+                  alt="Sanjiv Kumar Mahato"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              </motion.div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 // About Component
 const About = () => {
   return (
     <section id="about" className="min-h-screen flex items-center justify-center bg-black py-20">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Container box with background image and overlay */}
-        <motion.div 
+        <motion.div
           className="relative rounded-2xl shadow-2xl p-12 md:p-16 min-h-[85vh] flex items-center overflow-hidden"
           style={{
             backgroundImage: 'url("/photo-1607706009771-de8808640bcf.avif")',
@@ -83,7 +247,7 @@ const About = () => {
         >
           {/* Transparent overlay */}
           <div className="absolute inset-0 bg-black/5 backdrop-blur-sm"></div>
-          
+
           {/* Content */}
           <div className="grid md:grid-cols-2 gap-16 items-center w-full relative z-10">
             {/* Left - Animated Photo with Enhanced Border */}
@@ -91,8 +255,8 @@ const About = () => {
               <motion.div
                 className="relative w-92 h-92 lg:w-[450px] lg:h-[450px] rounded-2xl overflow-hidden"
                 initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ 
-                  scale: 1, 
+                animate={{
+                  scale: 1,
                   opacity: 1,
                   borderColor: [
                     'rgb(59, 130, 246)',   // blue-500
@@ -103,20 +267,20 @@ const About = () => {
                     'rgb(59, 130, 246)'    // back to blue-500
                   ]
                 }}
-                transition={{ 
+                transition={{
                   scale: { duration: 0.8, delay: 0.2 },
                   opacity: { duration: 0.8, delay: 0.2 },
-                  borderColor: { 
-                    duration: 4, 
-                    repeat: Infinity, 
-                    ease: "linear" 
+                  borderColor: {
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "linear"
                   }
                 }}
-                style={{ 
+                style={{
                   borderColor: 'rgb(59, 130, 246)',
                   border: '4px solid'
                 }}
-                whileHover={{ 
+                whileHover={{
                   scale: 1.05,
                   boxShadow: "0 20px 40px rgba(59, 130, 246, 0.3)"
                 }}
@@ -137,14 +301,14 @@ const About = () => {
                     ease: "linear"
                   }}
                 />
-                
+
                 {/* Inner content */}
-                <div className="relative bg-black rounded-2xl overflow-hidden h-full">
+                <div className="relative bg-black rounded-2.4xl overflow-hidden h-full">
                   {/* Transparent background overlay */}
                   <div className="absolute inset-0 bg-black/20 "></div>
-                  <motion.img 
-                    src="/profile-photo (1).png" 
-                    alt="Sanjiv Kumar Mahato" 
+                  <motion.img
+                    src="/profile-photo (1).png"
+                    alt="Sanjiv Kumar Mahato"
                     className="w-full h-full object-cover"
                     initial={{ scale: 1.2 }}
                     animate={{ scale: 1 }}
@@ -161,7 +325,7 @@ const About = () => {
 
             {/* Right - Animated Details */}
             <div className="space-y-8">
-              <motion.h3 
+              <motion.h3
                 className="text-3xl lg:text-4xl font-bold text-white"
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -187,8 +351,8 @@ const About = () => {
                   SANJIV KUMAR MAHATO
                 </motion.span>
               </motion.h3>
-              
-              <motion.h4 
+
+              <motion.h4
                 className="text-2xl lg:text-3xl text-blue-400 font-semibold"
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -207,19 +371,19 @@ const About = () => {
                   Full-Stack Developer
                 </motion.span>
               </motion.h4>
-              
-              <motion.p 
+
+              <motion.p
                 className="text-white leading-relaxed text-lg lg:text-xl"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.8 }}
               >
-                Passionate frontend developer with 2+ years of experience in building modern web applications. 
-                I love creating efficient, scalable solutions and staying up-to-date with the latest technologies. 
+                Passionate Full-stack Developer with 2+ years of experience in building modern web applications.
+                I love creating efficient, scalable solutions and staying up-to-date with the latest technologies.
                 Always eager to learn and take on new challenges.
               </motion.p>
-              
-              <motion.div 
+
+              <motion.div
                 className="flex flex-col space-y-4"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -229,7 +393,7 @@ const About = () => {
                   <MapPin size={20} className="mr-3 text-blue-400" />
                   <span>Bhubaneswar Odisha, INDIA</span>
                 </div>
-                
+
                 <div className="flex items-center text-gray-300 text-lg">
                   <Phone size={20} className="mr-3 text-blue-400" />
                   <span>+91 7735107105</span>
@@ -250,70 +414,129 @@ const Education = () => {
       degree: "Bachelor of Technology",
       institution: "Kalinga Institute of Industrial Technology",
       year: "2022-2026",
-      score: "7.45",
-      scoreType: "CGPA"
+      score: "7.69",
+      scoreType: "CGPA",
+      Icon: GraduationCap
     },
     {
       degree: "Higher Secondary Education",
       institution: "National Infotech Higher Secondary School",
       year: "2019-2021",
       score: "3.83",
-      scoreType: "GPA"
+      scoreType: "GPA",
+      Icon: School
     },
     {
       degree: "Secondary Education",
       institution: "Manakamana Secondary School",
       year: "2019",
       score: "2.95",
-      scoreType: "GPA"
+      scoreType: "GPA",
+      Icon: School
     },
   ];
 
   return (
-    <section id="education" className="py-16 bg-black">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.h2 
-          initial={{ opacity: 0, y: 30 }}
+    <section id="education" className="relative py-20 bg-black overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_55%)]" />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          className="text-2xl font-bold text-center mb-10 text-white"
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center text-2xl sm:text-3xl font-extrabold text-gray-200"
         >
           Education
         </motion.h2>
-        
-        <div className="max-w-4xl mx-auto">
-          <div className="relative">
-            {/* Vertical Timeline Line */}
-            <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-blue-800"></div>
-            
-            {educationData.map((edu, index) => (
-              <motion.div 
-                key={index}
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.3 }}
-                className="relative mb-8 flex items-center"
-              >
-                {/* Timeline Dot */}
-                <div className="absolute left-6 w-4 h-4 bg-blue-800 rounded-full border-4 border-black shadow-lg z-10"></div>
-                
-                {/* Education Card */}
-                <div className="ml-20 w-full">
-                  <motion.div 
-                    whileHover={{ scale: 1.02 }}
-                    className="bg-black-900 p-4 rounded-xl shadow-lg border-l-4 border-blue-600 hover:shadow-xl transition-all duration-300 border border-gray-800"
-                  >
-                    <h3 className="text-base font-bold text-white mb-1">{edu.degree}</h3>
-                    <p className="text-blue-700 font-semibold text-sm mb-1">{edu.institution}</p>
-                    <div className="flex justify-between items-center text-gray-400">
-                      <p className="text-gray-500 font-medium text-xs">{edu.year}</p>
-                      <p className="text-gray-300 font-semibold text-xs">
-                        {edu.scoreType}: <span className="text-blue-700">{edu.score}</span>
-                      </p>
+
+        <div className="relative mt-14">
+          {/* Desktop center line */}
+          <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-gray-700/80 to-transparent" />
+
+          {/* Mobile left line */}
+          <div className="md:hidden absolute left-5 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-gray-700/80 to-transparent" />
+
+          <div className="space-y-10">
+            {educationData.map((edu, index) => {
+              const Icon = edu.Icon ?? GraduationCap;
+              const isRight = index % 2 === 0;
+
+              return (
+                <motion.div
+                  key={`${edu.degree}-${edu.year}`}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.25 }}
+                  transition={{ duration: 0.6, delay: index * 0.08 }}
+                  className="relative"
+                >
+                  {/* Center icon + year (desktop) */}
+                  <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2">
+                    <div className="w-12 h-12 rounded-2xl bg-black/80 border border-gray-700/70 shadow-[0_20px_60px_rgba(0,0,0,0.6)] flex items-center justify-center">
+                      <Icon className="text-blue-400" size={22} />
                     </div>
-                  </motion.div>
-                </div>
-              </motion.div>
-            ))}
+                  </div>
+                  <div
+                    className={`hidden md:block absolute top-1/2 -translate-y-1/2 text-gray-400/90 font-medium tracking-wide ${isRight ? 'left-1/2 -translate-x-[165px]' : 'left-1/2 translate-x-[88px]'
+                      }`}
+                  >
+                    {edu.year}
+                  </div>
+
+                  {/* Mobile icon */}
+                  <div className="md:hidden absolute left-5 -translate-x-1/2 top-7">
+                    <div className="w-10 h-10 rounded-2xl bg-black/80 border border-gray-700/70 shadow-[0_20px_60px_rgba(0,0,0,0.6)] flex items-center justify-center">
+                      <Icon className="text-blue-400" size={18} />
+                    </div>
+                  </div>
+
+                  <div className="md:grid md:grid-cols-2 md:gap-12 items-center">
+                    {/* Spacer (desktop) */}
+                    <div className={`${isRight ? 'md:order-1' : 'md:order-2'}`} />
+
+                    {/* Card */}
+                    <div className={`${isRight ? 'md:order-2' : 'md:order-1'} md:pb-0 pb-2`}>
+                      <div className={`${isRight ? 'md:pl-10' : 'md:pr-10'} pl-12`}>
+                        <motion.div
+                          whileHover={{ y: -4 }}
+                          transition={{ duration: 0.2 }}
+                          className="relative rounded-2xl border border-gray-800/70 bg-gradient-to-b from-gray-900/70 to-gray-900/30 backdrop-blur-md shadow-[0_25px_80px_rgba(0,0,0,0.6)] p-7"
+                        >
+                          <div className="absolute inset-0 rounded-2xl bg-white/[0.02] pointer-events-none" />
+
+                          <div className="flex items-start gap-4 relative">
+                            <div className="w-12 h-12 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-center shrink-0">
+                              <Icon className="text-blue-400" size={22} />
+                            </div>
+                            <div className="min-w-0">
+                              <h3 className="text-2xl font-bold text-gray-100 leading-tight">
+                                {edu.degree}
+                              </h3>
+                              <p className="text-gray-400 mt-1">{edu.institution}</p>
+                              <p className="md:hidden text-gray-500 mt-2 text-sm">{edu.year}</p>
+                            </div>
+                          </div>
+
+                          <div className="mt-6 space-y-3 relative">
+                            <div className="flex items-start gap-3 text-gray-200">
+                              <CheckCircle2 className="text-gray-500 mt-0.5" size={18} />
+                              <span className="leading-relaxed">
+                                {edu.scoreType}: <span className="text-blue-300 font-semibold">{edu.score}</span>
+                              </span>
+                            </div>
+                            <div className="flex items-start gap-3 text-gray-200">
+                              <CheckCircle2 className="text-gray-500 mt-0.5" size={18} />
+                              <span className="leading-relaxed">Institution: {edu.institution}</span>
+                            </div>
+                          </div>
+                        </motion.div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -324,8 +547,6 @@ const Education = () => {
 
 // Skills Component
 const Skills = () => {
-  const [activeTab, setActiveTab] = useState('Languages');
-
   const skillsData = {
     Languages: [
       { name: 'Java', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg' },
@@ -351,112 +572,90 @@ const Skills = () => {
       { name: 'MongoDB', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg' },
       { name: 'PostgreSQL', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg' },
       { name: 'MySQL', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg' },
-    //  { name: 'Redis', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg' },
+      //  { name: 'Redis', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg' },
       { name: 'Firebase', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/firebase/firebase-plain.svg' }
     ]
   };
 
+  const skillSections = [
+    { title: 'Languages', skills: skillsData.Languages },
+    { title: 'Frameworks', skills: skillsData.Frameworks },
+    { title: 'Tools', skills: skillsData.Tools },
+    { title: 'Database', skills: skillsData.Database }
+  ];
+
+  const chipVariants = [
+    'bg-blue-500/20 border-blue-500/30 text-blue-100',
+    'bg-sky-500/20 border-sky-500/30 text-sky-100',
+    'bg-indigo-500/20 border-indigo-500/30 text-indigo-100',
+    'bg-purple-500/20 border-purple-500/30 text-purple-100',
+    'bg-fuchsia-500/20 border-fuchsia-500/30 text-fuchsia-100',
+    'bg-emerald-500/20 border-emerald-500/30 text-emerald-100',
+    'bg-amber-500/20 border-amber-500/30 text-amber-100',
+    'bg-orange-500/20 border-orange-500/30 text-orange-100',
+    'bg-gray-900/60 border-gray-700/60 text-gray-100'
+  ];
+
+  const SkillPill = ({ skill, variantIndex }) => (
+    <div
+      className={`group flex items-center gap-3 px-4 py-2 rounded-xl border shadow-sm backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${chipVariants[variantIndex % chipVariants.length]}`}
+    >
+      <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-black/25 border border-white/10">
+        <img
+          src={skill.logo}
+          alt={skill.name}
+          className="w-5 h-5 object-contain"
+          onError={(e) => {
+            e.target.style.display = 'none';
+            e.target.nextSibling.style.display = 'flex';
+          }}
+        />
+        <div className="hidden w-full h-full items-center justify-center text-sm font-bold text-gray-200">
+          {skill.name.charAt(0)}
+        </div>
+      </div>
+      <span className="text-base font-medium whitespace-nowrap">{skill.name}</span>
+    </div>
+  );
+
   return (
-    <section id="skills" className="py-16 bg-black">
-      <div className="max-w-6xl mx-auto p-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-white mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-            Skills
-          </h2>
-        </div>
+    <section id="skills" className="relative py-20 bg-black overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_55%)]" />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center text-2xl sm:text-3xl font-extrabold text-gray-200"
+        >
+          My Skills
+        </motion.h2>
 
-        {/* Tab Navigation */}
-        <div className="flex flex-wrap justify-center mb-8 gap-8">
-          {Object.keys(skillsData).map((category) => (
-            <button
-              key={category}
-              onClick={() => setActiveTab(category)}
-              className={`
-                relative px-4 py-2 text-lg font-semibold transition-all duration-300 hover:text-blue-400
-                ${activeTab === category
-                  ? 'text-blue-400'
-                  : 'text-gray-300'
-                }
-              `}
+        <div className="grid gap-8 lg:gap-10 mt-14 lg:grid-cols-2">
+          {skillSections.map((section, sectionIndex) => (
+            <motion.div
+              key={section.title}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: sectionIndex * 0.05 }}
+              className="relative rounded-2xl border border-gray-800/70 bg-gradient-to-b from-gray-900/70 to-gray-900/30 backdrop-blur-md shadow-[0_25px_80px_rgba(0,0,0,0.6)] p-8"
             >
-              <span>{category}</span>
-              {/* Underline effect */}
-              <div 
-                className={`
-                  absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-400 transition-all duration-300
-                  ${activeTab === category ? 'w-full' : 'w-0 group-hover:w-full'}
-                `}
-              ></div>
-              {/* Hover underline */}
-              <div 
-                className={`
-                  absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-400 transition-all duration-300 w-0 hover:w-full
-                  ${activeTab === category ? 'hidden' : ''}
-                `}
-              ></div>
-            </button>
-          ))}
-        </div>
-
-        {/* Skills Content */}
-        <div className="flex justify-center">
-          {Object.entries(skillsData).map(([category, skills]) => (
-            <div
-              key={category}
-              className={`
-                transition-all duration-500 ease-in-out
-                ${activeTab === category
-                  ? 'opacity-100 translate-y-0 visible'
-                  : 'opacity-0 translate-y-4 invisible absolute'
-                }
-              `}
-            >
-              <div className="bg-black-900 rounded-2xl shadow-xl border border-gray-700 box-shadow-2px p-8 w-fit">
-                {/*<h3 className="text-2xl font-bold text-white mb-6 text-center bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                  {category}
-                </h3>*/}
-                <div className="grid grid-cols-2 gap-3 justify-items-center">
-                  {skills.map((skill, index) => (
-                    <div
-                      key={skill.name}
-                      className="group relative bg-black-800 rounded-lg border border-gray-700 p-4 hover:border-gray-400 hover:shadow-lg hover:shadow-gray-500/20 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 w-24 h-24"
-                      style={{
-                        animationDelay: `${index * 100}ms`
-                      }}
-                    >
-                      {/* Skill Logo */}
-                      <div className="flex flex-col items-center justify-center h-full">
-                        <div className="relative w-10 h-10 mb-1">
-                          <img
-                            src={skill.logo}
-                            alt={skill.name}
-                            className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
-                            onError={(e) => {
-                              // Fallback to text if image fails to load
-                              e.target.style.display = 'none';
-                              e.target.nextSibling.style.display = 'flex';
-                            }}
-                          />
-                          {/* Fallback text */}
-                          <div className="hidden w-full h-full items-center justify-center text-lg font-bold text-gray-300">
-                            {skill.name.charAt(0)}
-                          </div>
-                        </div>
-
-                        {/* Skill Name */}
-                        <h4 className="text-xs font-medium text-gray-300 text-center group-hover:text-blue-400 transition-colors duration-300 leading-tight">
-                          {skill.name}
-                        </h4>
-                      </div>
-
-                      {/* Hover Effect Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-gray-500/10 to-white-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                    </div>
-                  ))}
-                </div>
+              <div className="absolute inset-0 rounded-2xl bg-black pointer-events-none" />
+              <h3 className="text-center text-2xl font-semibold text-gray-200 mb-8 relative">
+                {section.title}
+              </h3>
+              <div className="flex flex-wrap justify-center gap-4 relative">
+                {section.skills.map((skill, index) => (
+                  <SkillPill
+                    key={skill.name}
+                    skill={skill}
+                    variantIndex={sectionIndex * 10 + index}
+                  />
+                ))}
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
@@ -466,44 +665,59 @@ const Skills = () => {
 
 // Certifications Component
 const Experience = () => {
+  const [activeCert, setActiveCert] = useState(null);
+  const [activeAssetIndex, setActiveAssetIndex] = useState(0);
+
   const experiences = [
     {
       title: "AWS Cloud Architecting",
       company: "AWS Academy",
-      description: "Completion Certificate in AWS Cloud Architecting."
+      description: "Completion Certificate in AWS Cloud Architecting.",
+      assets: [{ label: "Certificate (Image)", type: "image", src: "/AWS_Academy_Cloud.png" }]
     },
     {
       title: "Linux System Administration",
       company: "Red Hat",
-      description: "Completion Certificate in Linux System Administration."
+      description: "Completion Certificate in Linux System Administration.",
+      assets: [{ label: "Certificate (Image)", type: "image", src: "/red hat.jpg" }]
     },
     {
       title: "Cyber Security(Cloud Security,Network Security, Security Operations)",
       company: "Palo Alto Networks",
-      description: "Course completion in four foundational courses from Palo Alto Networks, diving deep into key areas of the cyber security domain"
+      description: "Course completion in four foundational courses from Palo Alto Networks, diving deep into key areas of the cyber security domain",
+      assets: [
+         { label: "Course 1 (Image)", type: "image", src: "/Palo Alto Networks.png" },
+        { label: "Course 1 (Image)", type: "image", src: "/Palo Alto Networks1.png" },
+        { label: "Course 2 (Image)", type: "image", src: "/Palo Alto Networks2..png" },
+        { label: "Course 3 (Image)", type: "image", src: "/Palo Alto Networks3..png" },
+        { label: "Course 4 (Image)", type: "image", src: "/Palo Alto Networks4..png" }
+      ]
     },
-    
+
   ];
+
+  const selectedAsset = activeCert?.assets?.[activeAssetIndex] ?? null;
+  const selectedAssetSrc = selectedAsset?.src ? encodeURI(selectedAsset.src) : '';
 
   return (
     <section id="experience" className="py-16 bg-black">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.h2 
+        <motion.h2
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           className="text-2xl font-bold text-center mb-10 text-white"
         >
           Certifications
         </motion.h2>
-        
+
         <div className="max-w-4xl mx-auto">
           <div className="relative">
             {/* Vertical Timeline Line */}
-             {/* <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-blue-800"></div> */}
-            
-            
+            {/* <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-blue-800"></div> */}
+
+
             {experiences.map((exp, index) => (
-              <motion.div 
+              <motion.div
                 key={index}
                 initial={{ opacity: 0, x: 0 }}
                 whileInView={{ opacity: 1, x: 0 }}
@@ -511,37 +725,160 @@ const Experience = () => {
                 className="relative mb-8 flex items-center"
               >
                 {/* Timeline Dot */}
-              {/*<div className="absolute left-6 w-4 h-4 bg-blue-800 rounded-full border-4 border-black shadow-lg z-10"></div>*/}  
-                
+                {/*<div className="absolute left-6 w-4 h-4 bg-blue-800 rounded-full border-4 border-black shadow-lg z-10"></div>*/}
+
                 {/* Certification Card */}
                 <div className="ml-20 w-full">
-                  <motion.div 
+                  <motion.button
+                    type="button"
                     whileHover={{ scale: 1.02 }}
-                    className="bg-black-900 p-4 rounded-xl shadow-lg border-l-4 border-blue-600 hover:shadow-xl transition-all duration-300 border border-gray-800"
+                    className="w-full text-left bg-black-900 p-4 rounded-xl shadow-lg border-l-4 border-blue-600 hover:shadow-xl transition-all duration-300 border border-gray-800 cursor-pointer"
+                    onClick={() => {
+                      setActiveCert(exp);
+                      setActiveAssetIndex(0);
+                    }}
                   >
                     <h3 className="text-base font-bold text-white mb-1">{exp.title}</h3>
                     <p className="text-blue-700 font-semibold text-sm mb-1">{exp.company}</p>
                     <p className="text-gray-300 text-xs">{exp.description}</p>
-                  </motion.div>
+                  </motion.button>
                 </div>
               </motion.div>
             ))}
           </div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {activeCert && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center px-4"
+            onClick={() => setActiveCert(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.98 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+              className="w-full max-w-5xl bg-black border border-gray-800 rounded-2xl shadow-2xl overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-label={`${activeCert.title} certificate`}
+            >
+              <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-gray-800">
+                <div className="min-w-0">
+                  <h3 className="text-lg font-semibold text-white truncate">{activeCert.title}</h3>
+                  <p className="text-sm text-gray-400 truncate">{activeCert.company}</p>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {selectedAssetSrc ? (
+                    <a
+                      href={selectedAssetSrc}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                    >
+                      Open in new tab
+                    </a>
+                  ) : null}
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveCert(null)}
+                    className="text-gray-200 hover:text-white transition-colors"
+                    aria-label="Close"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              </div>
+
+              {activeCert.assets?.length > 1 ? (
+                <div className="px-5 py-3 border-b border-gray-800 flex flex-wrap gap-2">
+                  {activeCert.assets.map((asset, idx) => (
+                    <button
+                      key={`${asset.label}-${idx}`}
+                      type="button"
+                      onClick={() => setActiveAssetIndex(idx)}
+                      className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+                        idx === activeAssetIndex
+                          ? 'border-blue-500/60 bg-blue-500/10 text-blue-200'
+                          : 'border-gray-700/70 bg-black/40 text-gray-300 hover:border-gray-500'
+                      }`}
+                    >
+                      {asset.label}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+
+              <div className="p-5">
+                {selectedAsset?.type === 'image' ? (
+                  <div className="w-full bg-black rounded-xl border border-gray-800 overflow-hidden">
+                    <img
+                      src={selectedAssetSrc}
+                      alt={selectedAsset?.label ?? 'Certificate'}
+                      className="w-full max-h-[72vh] object-contain"
+                    />
+                  </div>
+                ) : selectedAsset?.type === 'pdf' ? (
+                  <div className="w-full bg-black rounded-xl border border-gray-800 overflow-hidden">
+                    <iframe
+                      title={selectedAsset?.label ?? 'Certificate PDF'}
+                      src={selectedAssetSrc}
+                      className="w-full h-[72vh]"
+                    />
+                  </div>
+                ) : (
+                  <p className="text-gray-300">No certificate file found for this item.</p>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };
 
+// EmailJS Configuration - REPLACE THESE WITH YOUR ACTUAL VALUES
+const EMAILJS_CONFIG = {
+  publicKey: 'v9bqZ__AxfinWx0SL',      // From EmailJS Dashboard
+  serviceId: 'service_94ht7h2',       // From EmailJS Dashboard
+  templateId: 'template_peold2g'      // From EmailJS Dashboard
+};
+
 // Projects Component
 const Projects = () => {
-  const [hoveredProject, setHoveredProject] = useState(null);
   const [clickedProject, setClickedProject] = useState(null);
 
+  const techIconMap = useMemo(
+    () => ({
+      React: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
+      'Node.js': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg',
+      MongoDB: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg',
+      Express: 'https://devicon-website.vercel.app/api/express/original.svg?color=%23FFFFFF',
+      Firebase: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/firebase/firebase-plain.svg',
+      'Material-UI': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/materialui/materialui-original.svg',
+      AWS: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original.svg',
+      MySQL: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg',
+      PostgreSQL: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg',
+      JavaScript: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg',
+      TypeScript: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg',
+      NextJS: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg'
+    }),
+    []
+  );
+
   const projects = [
-     {
+    {
       title: "Patient Management System",
-      description: "Healthcare management system, it manages patient appointments, medical records, and secure communication with role-based dashboards for patients, doctors, and admins. It also sends automated SMS reminders and offers a mobile-responsive, accessible UI.",
+      description: "Healthcare management system, it manages patient appointments, medical records, and secure communication with role-based dashboards for patients, doctors, and admins.",
       tech: ["React", "Node.js", "MongoDB", "Express"],
       image: "https://birhospital.gov.np/frontend/website/images/gov_logo.png",
       category: "Healthcare System"
@@ -553,7 +890,7 @@ const Projects = () => {
       image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=500&h=300&fit=crop",
       category: "Cloud Infrastructure"
     },
-   
+
     {
       title: "Task Management App",
       description: "Real-time task management application with drag-and-drop functionality, team collaboration, and progress tracking.",
@@ -572,61 +909,84 @@ const Projects = () => {
   };
 
   return (
-    <section id="projects" className="py-16 bg-black">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-white mb-4">
-            Projects
-          </h2>
-        </div>
-        
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <section id="projects" className="relative py-18 bg-black overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_55%)]" />
+      <div className="max-w-5xl mx-auto px-3 sm:px-5 lg:px-7 relative">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-2xl font-bold text-center mb-10 text-white"
+        >
+          Projects
+        </motion.h2>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8 mt-10">
           {projects.map((project, index) => (
-            <div 
+            <div
               key={index}
-              onMouseEnter={() => setHoveredProject(index)}
-              onMouseLeave={() => setHoveredProject(null)}
               onClick={() => handleProjectClick(index)}
-              className={`group bg-gray-900 rounded-2xl overflow-hidden shadow-lg border border-gray-800 transform-gpu cursor-pointer transition-transform duration-300 ease-out ${
-                clickedProject === index ? '-translate-y-6' : ''
-              }`}
+              className={`group rounded-3xl overflow-hidden transform-gpu cursor-pointer transition-transform duration-300 ease-out border border-gray-800/70 bg-gradient-to-b from-gray-900/70 to-gray-900/30 backdrop-blur-md shadow-[0_25px_80px_rgba(0,0,0,0.6)] ${clickedProject === index ? '-translate-y-6' : ''
+                }`}
             >
               {/* Image Container */}
-              <div className="relative h-48 overflow-hidden">
+              <div className="relative h-56 overflow-hidden">
                 <img
                   src={project.image}
                   alt={project.title}
                   className="w-full h-full object-cover"
                 />
-                
+
                 {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent"></div>
-                
-                {/* Category Badge */}
-                <div className="absolute top-4 left-4 bg-black/70 text-blue-400 px-3 py-1 rounded-full text-xs font-medium border border-blue-500/30">
-                  {project.category}
-                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
               </div>
 
               {/* Content */}
               <div className="p-6">
-                <h3 className="text-xl font-bold mb-3 text-white">
+                <h3 className="text-xl font-bold mb-2 text-gray-100">
                   {project.title}
                 </h3>
-                
-                <p className="text-gray-300 mb-6 text-sm leading-relaxed">
+
+                <p className="text-gray-400 mb-6 text-sm leading-relaxed">
                   {project.description}
                 </p>
-                
-                <div className="flex flex-wrap gap-2">
-                  {project.tech.map((tech, techIndex) => (
-                    <span 
-                      key={techIndex}
-                      className="bg-blue-900/30 text-blue-300 px-3 py-1 rounded-full text-xs font-medium border border-blue-800/30"
-                    >
-                      {tech}
-                    </span>
-                  ))}
+
+                <div className="flex items-center justify-between gap-6">
+                  <div className="flex items-center gap-3 flex-wrap">
+                    {project.tech.map((tech) => {
+                      const iconUrl = techIconMap[tech];
+                      return (
+                        <div
+                          key={tech}
+                          title={tech}
+                          className="w-10 h-10 rounded-full bg-black/40 border border-gray-700/70 flex items-center justify-center shadow-sm"
+                        >
+                          {iconUrl ? (
+                            <img
+                              src={iconUrl}
+                              alt={tech}
+                              className="w-5 h-5 object-contain"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'flex';
+                              }}
+                            />
+                          ) : null}
+                          <div className="hidden w-full h-full items-center justify-center text-sm font-bold text-gray-200">
+                            {tech?.charAt(0)?.toUpperCase?.() ?? '•'}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex items-center gap-4 text-gray-200 shrink-0">
+                    <span className="text-base font-semibold">Check Live Site</span>
+                    <div className="w-10 h-10 rounded-full bg-black/40 border border-gray-700/70 flex items-center justify-center">
+                      <ArrowUpRight className="text-purple-300" size={20} />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -649,7 +1009,7 @@ const LearnMore = () => {
     <section id="learn-more" className="py-16 bg-black">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Learn More Button */}
-        <motion.div 
+        <motion.div
           className="text-center mb-8"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -674,7 +1034,7 @@ const LearnMore = () => {
         {/* Expandable Content */}
         <AnimatePresence>
           {isExpanded && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 50, height: 0 }}
               animate={{ opacity: 1, y: 0, height: "auto" }}
               exit={{ opacity: 0, y: -50, height: 0 }}
@@ -683,32 +1043,33 @@ const LearnMore = () => {
             >
               <div className="text-center mb-8">
                 <motion.img
-                //  initial={{ scale: 0 }}
-                //  animate={{ scale: 1 }}
-                 // transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-                  src="/profile-photo1.png" 
-                  alt="Sanjiv Kumar Mahato" 
+                  //  initial={{ scale: 0 }}
+                  //  animate={{ scale: 1 }}
+                  // transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
+                  src="/profile-photo1.png"
+                  alt="Sanjiv Kumar Mahato"
                   className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-gray-200 object-cover"
                 />
-                <motion.h3 
-                 // initial={{ opacity: 0, y: 20 }}
-                 // animate={{ opacity: 1, y: 0 }}
-                 // transition={{ delay: 0.3 }}
+                <motion.h3
+                  // initial={{ opacity: 0, y: 20 }}
+                  // animate={{ opacity: 1, y: 0 }}
+                  // transition={{ delay: 0.3 }}
                   className="text-2xl font-bold text-white mb-2"
                 >
                   SANJIV KUMAR MAHATO
                 </motion.h3>
-                <motion.p 
-                 // initial={{ opacity: 0, y: 20 }}
-                 // animate={{ opacity: 1, y: 0 }}
+                <motion.p
+                  // initial={{ opacity: 0, y: 20 }}
+                  // animate={{ opacity: 1, y: 0 }}
                   //transition={{ delay: 0.4 }}
                   className="text-gray-300 mb-6"
                 >
-                  I'm a passionate developer who loves creating innovative solutions and sharing knowledge with the community.
+                  Turning ideas into scalable digital experiences.
+                  Building fast, clean, and user-focused web applications.
                 </motion.p>
               </div>
-              
-              <motion.div 
+
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
@@ -720,9 +1081,11 @@ const LearnMore = () => {
                   { icon: Github, label: "GitHub", link: "https://github.com/sanjiv-65", color: "gray" },
                   { icon: FileText, label: "Resume", link: "https://drive.google.com/file/d/1xTPNlhusQrycJ5lGDg60Hs23IW2TkWzD/view?usp=sharing", color: "green" }
                 ].map((social, index) => (
-                  <motion.a 
+                  <motion.a
                     key={social.label}
                     href={social.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6 + index * 0.1 }}
@@ -734,8 +1097,8 @@ const LearnMore = () => {
                   </motion.a>
                 ))}
               </motion.div>
-              
-              <motion.div 
+
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.0 }}
@@ -769,17 +1132,10 @@ const Contact = () => {
     subject: '',
     message: ''
   });
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
   const [emailJSLoaded, setEmailJSLoaded] = useState(false);
-
-  // EmailJS Configuration - REPLACE THESE WITH YOUR ACTUAL VALUES
-  const EMAILJS_CONFIG = {
-    publicKey: 'v9bqZ__AxfinWx0SL',      // From EmailJS Dashboard
-    serviceId: 'service_94ht7h2',       // From EmailJS Dashboard
-    templateId: 'template_peold2g'      // From EmailJS Dashboard
-  };
 
   // Load EmailJS dynamically
   useEffect(() => {
@@ -823,7 +1179,7 @@ const Contact = () => {
 
     setIsSubmitting(true);
     setSubmitStatus(null);
-    
+
     try {
       if (emailJSLoaded && window.emailjs) {
         const result = await window.emailjs.send(
@@ -837,11 +1193,11 @@ const Contact = () => {
             to_name: 'Sanjiv'
           }
         );
-        
+
         console.log('Email sent successfully:', result);
         setSubmitStatus('success');
         setFormData({ name: '', email: '', subject: '', message: '' });
-        
+
         setTimeout(() => setSubmitStatus(null), 5000);
       } else {
         throw new Error('EmailJS not loaded');
@@ -849,7 +1205,7 @@ const Contact = () => {
     } catch (error) {
       console.error('Error sending email:', error);
       setSubmitStatus('error');
-      
+
       const mailtoLink = `mailto:mrsanjiv105@gmail.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`)}`;
       window.location.href = mailtoLink;
     } finally {
@@ -858,13 +1214,13 @@ const Contact = () => {
   };
 
   return (
-    <section className="py-16 bg-black min-h-screen flex items-center">
+    <section id="contact" className="py-16 bg-black min-h-screen flex items-center">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <h2 className="text-4xl font-bold text-center mb-16 text-white">
           Get In Touch
         </h2>
-        
-        <div className="bg-gray-900 p-8 rounded-2xl border border-gray-700 shadow-2xl">
+
+        <div className="bg-black-900 p-8 rounded-2xl border border-gray-700 shadow-2xl">
           {/* EmailJS Status */}
           {/*<div className="mb-4 text-center">
             {emailJSLoaded ? (
@@ -882,7 +1238,7 @@ const Contact = () => {
               </p>
             </div>
           )}
-          
+
           {submitStatus === 'error' && (
             <div className="mb-6 p-4 bg-red-600 bg-opacity-20 border border-red-500 rounded-lg">
               <p className="text-red-400 text-center">
@@ -898,7 +1254,7 @@ const Contact = () => {
               </p>
             </div>
           )}
-          
+
           <div className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <input
@@ -934,11 +1290,11 @@ const Contact = () => {
               onChange={handleChange}
               className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-600 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300 text-white placeholder-gray-400 resize-vertical"
             />
-            
+
             <button
               onClick={handleSubmit}
               disabled={isSubmitting || !emailJSLoaded}
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
+              className="w-full bg-gradient-to-r from-white to-gray text-white py-3 px-6 rounded-lg font-semibold hover:from-wite-600 hover:to-gray-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
             >
               {isSubmitting ? (
                 <>
@@ -951,9 +1307,9 @@ const Contact = () => {
             </button>
           </div>
         </div>
-        
+
         {/* Direct Email Link */}
-        
+
       </div>
     </section>
   );
@@ -967,14 +1323,14 @@ const Footer = () => {
     <footer className="bg-black text-white py-8 border-t border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-center">
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             className="text-gray-400 mb-4 md:mb-0"
           >
             © 2024 Sanjiv Kumar Mahato. All rights reserved.
           </motion.p>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             className="flex space-x-6"
@@ -986,6 +1342,8 @@ const Footer = () => {
               <motion.a
                 key={index}
                 href={social.link}
+                target="_blank"
+                rel="noopener noreferrer"
                 whileHover={{ scale: 1.2, rotate: 5 }}
                 className="text-gray-400 hover:text-white transition-colors duration-300"
               >
@@ -1004,8 +1362,9 @@ function App() {
   return (
     <div className="App bg-black min-h-screen">
       <Navbar />
+      <Home />
       <About />
-       <LearnMore />
+      <LearnMore />
       <Education />
       <Skills />
       <Experience />
