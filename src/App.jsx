@@ -1079,7 +1079,7 @@ const LearnMore = () => {
                   { icon: Facebook, label: "Facebook", link: "https://www.facebook.com/share/14QW967A86w/?mibextid=wwXIfr", color: "blue" },
                   { icon: Linkedin, label: "LinkedIn", link: "http://linkedin.com/in/sanjiv-mahato", color: "blue" },
                   { icon: Github, label: "GitHub", link: "https://github.com/sanjiv-65", color: "gray" },
-                  { icon: FileText, label: "Resume", link: "https://drive.google.com/file/d/1xTPNlhusQrycJ5lGDg60Hs23IW2TkWzD/view?usp=sharing", color: "green" }
+                  { icon: FileText, label: "Resume", link: "https://drive.google.com/file/d/1TDDIKQpHlCg51PKzBe6nCcIlus32vH1X/view?usp=sharing", color: "green" }
                 ].map((social, index) => (
                   <motion.a
                     key={social.label}
